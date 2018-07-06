@@ -1,0 +1,9 @@
+    - name: Install Tmux configuration
+      copy:
+        src: tmux.conf
+        dest: /etc/tmux.conf
+
+    - name: Install Nano configuration
+      copy:
+        src: nanorc
+        dest: /etc/nanorc

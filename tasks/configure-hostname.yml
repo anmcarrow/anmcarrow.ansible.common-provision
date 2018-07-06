@@ -1,0 +1,19 @@
+    - name: Generate random hostname
+      shell: "ip l | grep ether | awk '{print $2}' | tr -d ':' | head -n 1"
+      register: unique_prefix
+      when:
+        - ansible_hostname == 'localhost'
+
+    - name: Set random hostname if host doesn't have it
+      hostname:
+        name: "{{ unique_prefix }}-host"
+      when:
+        - ansible_hostname == 'localhost'
+
+    - name: Set fact about new hostname
+      set_fact: ansible_fqdn="{{ unique_prefix }}-host"
+      when:
+        - ansible_hostname == 'localhost'
+
+    - name: Properly configure /etc/hosts
+      template:  src="hosts.conf" dest="/etc/hosts"

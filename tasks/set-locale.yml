@@ -1,0 +1,17 @@
+
+    - name: Deploy locale-gen profile
+      copy:
+        src: locale.gen
+        dest: /etc/locale.gen
+
+    - name: Generate new locales
+      command: locale-gen
+
+    - name: Check locale in /etc/profile
+      command: grep -q "{{ system_locale }}" /etc/profile
+      ignore_errors: yes
+      register: foundlocale
+
+    - name: Add locale to system profiles
+      shell: "echo 'export locale='{{ system_locale }}'' >> /etc/profile"
+      when: foundlocale.rc != 0

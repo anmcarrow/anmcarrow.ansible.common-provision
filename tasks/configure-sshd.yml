@@ -1,0 +1,14 @@
+    - name: Prepare CentOS sftp
+      file:
+        src: /usr/libexec/openssh
+        dest: /usr/lib/openssh
+        state: link
+      when: ansible_distribution == 'CentOS'
+
+    - name: Deploy SSHd config
+      copy:
+        src: sshd_config
+        dest: /etc/ssh/sshd_config
+
+    - name: Reload SSHd
+      command: service sshd reload

@@ -1,0 +1,77 @@
+    - include: centos-repos.yml
+
+    - name: Upgrade all RPMs
+      yum: name=* state=latest
+
+    - name: Test EPEL repo presence
+      stat: path={{ epel_repofile_path }}
+      ignore_errors: yes
+      register: epel_presence
+
+    - name: Install base packages CentOS-flavored hosts with EPEL repo
+      yum: pkg={{ item }} state=installed update_cache=true
+      with_items:
+        - "{{ centos_pkgs }}"
+      when:
+        - epel_presence.stat.exists
+
+    - name: Install base packages CentOS-flavored hosts without EPEL repo
+      yum: pkg={{ item }} state=installed update_cache=true
+      with_items:
+      - "{{ centos_strict_pkgs }}"
+      when:
+        - not epel_presence.stat.exists
+
+    - name: Install additional packages for CentOS-flavored non-CT hosts
+      yum: pkg={{ item }} state=installed update_cache=true
+      with_items:
+        - atop
+        - autofs
+        - hdparm
+      when:
+       - ansible_virtualization_role == 'guest'
+       - ansible_virtualization_type != 'lxc'
+       - epel_presence.stat.exists
+
+
+    - name: Install additional packages for CentOS-flavored bare-metal hosts
+      yum: pkg={{ item }} state=installed update_cache=true
+      with_items:
+        - lm_sensors
+        - smartmontools
+        - dmidecode
+        - hdparm
+      when:
+       - ansible_virtualization_role != 'guest'
+       - epel_presence.stat.exists
+
+    - name: Install additional packages for CentOS-flavored KVM-guests
+      yum: pkg={{ item }} state=installed update_cache=true
+      with_items:
+        - qemu-guest-agent
+      when:
+       - ansible_virtualization_role == 'guest'
+       - ansible_virtualization_type == 'kvm'
+       - epel_presence.stat.exists
+
+    - name: Install additional packages for CentOS-flavored VmWare-guests
+      yum: pkg={{ item }} state=installed update_cache=true
+      with_items:
+        - open-vm-tools
+      when:
+        - ansible_virtualization_role == 'guest'
+        - ansible_virtualization_type == 'VMware'
+        - epel_presence.stat.exists
+
+    - name: Install fake-MTA for all CentOS-hosts except mailhosts
+      yum: pkg={{ item }} state=installed update_cache=true
+      with_items:
+        - ssmtp
+      when:
+       - inventory_hostname not in groups.mail
+       - inventory_hostname not in groups.pve
+       - epel_presence.stat.exists
+
+
+    - name: Clean packages
+      command: yum clean packages

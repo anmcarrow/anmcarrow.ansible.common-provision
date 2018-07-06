@@ -1,0 +1,77 @@
+    - name: Upgrade installed deb-packages
+      apt: update-cache=yes state=latest
+      when: ansible_os_family == 'Debian'
+
+    - name: Remove complex MTA for all Debian-hosts except mailhosts and Proxmox-VE hosts
+      apt: pkg={{ item }} state=absent
+      with_items:
+      - postfix
+      - exim4
+      when:
+      - inventory_hostname not in groups.mail
+      - inventory_hostname not in groups.pve
+      - ansible_distribution == 'Debian'
+
+    - name: Install fake-MTA for all Debian-hosts except mailhosts and Proxmox-VE hosts
+      apt: pkg={{ item }} state=installed
+      with_items:
+      - ssmtp
+      when:
+      - inventory_hostname not in groups.mail
+      - inventory_hostname not in groups.pve
+      - ansible_distribution == 'Debian'
+      tags: ssmtp
+
+    - name: Install base packages Debian-flavored hosts
+      apt: pkg={{ item }} state=installed update_cache=true
+      with_items:
+        - "{{ debian_pkgs }}"
+      when:
+       - ansible_distribution == 'Debian'
+
+    - name: Install additional packages for Debian-flavored non-CT hosts
+      apt: pkg={{ item }} state=installed update_cache=true
+      with_items:
+        - atop
+        - autofs
+        - hdparm
+      when:
+       - ansible_virtualization_role == 'guest'
+       - ansible_virtualization_type != 'lxc'
+       - ansible_virtualization_type != 'openvz'
+       - ansible_distribution == 'Debian'
+
+    - name: Install additional packages for Debian-flavored bare-metal hosts
+      apt: pkg={{ item }} state=installed update_cache=true
+      with_items:
+        - lm-sensors
+        - smartmontools
+        - dmidecode
+        - swapspace
+        - hdparm
+      when:
+       - ansible_virtualization_role != 'guest'
+       - ansible_distribution == 'Debian'
+
+    - name: Install additional packages for Debian-flavored KVM-guests
+      apt: pkg={{ item }} state=installed update_cache=true
+      with_items:
+        - qemu-guest-agent
+      when:
+       - ansible_virtualization_role == 'guest'
+       - ansible_virtualization_type == 'kvm'
+       - ansible_distribution == 'Debian'
+
+    - name: Install additional packages for Debian-flavored VmWare-guests
+      apt: pkg={{ item }} state=installed update_cache=true
+      with_items:
+        - open-vm-tools
+      when:
+        - ansible_virtualization_role == 'guest'
+        - ansible_virtualization_type == 'VMware'
+        - ansible_distribution == 'Debian'
+
+    - name: Clean packages
+      command: apt-get clean
+      when:
+       - ansible_distribution == 'Debian'

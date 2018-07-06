@@ -1,0 +1,41 @@
+    - name: Deploy ZRAM startup script
+      copy:
+        src: zram.sh
+        dest: /etc/init.d/zram
+        owner: root
+        group: root
+        mode: 0755
+      register: needtozram
+      tags: zram
+
+    - name: Enable ZRAM service in Debian
+      command:  update-rc.d zram defaults
+      when:
+       - ansible_distribution == 'Debian'
+       - needtozram|succeeded
+      register: zraminstallok
+      tags: zram
+
+
+    - name: Enable ZRAM service in CentOS
+      shell:  chkconfig --add zram && chkconfig zram on
+      register: zraminstallok
+      tags: zram
+      when:
+        - ansible_distribution == 'CentOS'
+        - needtozram|succeeded
+
+    - name: Test ZRAM device
+      ignore_errors: true
+      command: grep -q "zram" /proc/swaps
+      register: zramenabled
+      when:
+       - zraminstallok|succeeded
+      tags: zram
+
+    - name: Start ZRAM service
+#      service: name=zram state=started
+      command: /etc/init.d/zram start
+      when:
+       - zramenabled|failed
+      tags: zram

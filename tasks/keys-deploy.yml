@@ -1,0 +1,5 @@
+#    - name: Deploy public SSH-keys for root access
+#      authorized_key:
+#        user: root
+#        state: present
+#        key: "{{ pubkey_url }}"

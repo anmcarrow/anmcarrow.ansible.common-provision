@@ -1,0 +1,104 @@
+---
+    install: true
+    pubkey_url: "http://rsa.mcrrw.ru/main"
+
+    system_locale: "ru_RU.UTF-8"
+
+    centos_pkgs:
+      - fail2ban
+      - ntpdate
+      - rsync
+      - socat
+      - ncdu
+      - pigz
+      - htop
+      - iftop
+      - fping
+      - mtr
+      - vim-common
+      - nano
+      - most
+      - tmux
+      - wget
+      - curl
+      - mosh
+      - iotop
+      - rkhunter
+      - git-core
+      - postfix
+      - pv
+      - htop
+      - tcpdump
+      - bc
+      - fpaste
+      - pciutils
+      - usbutils
+      - biosdevname
+      - bind-utils
+      - psmisc
+      - net-tools
+
+    centos_strict_pkgs:
+      - ntpdate
+      - rsync
+      - socat
+      - htop
+      - fping
+      - mtr
+      - vim-common
+      - nano
+      - tmux
+      - wget
+      - curl
+      - htop
+      - git-core
+      - postfix
+      - tcpdump
+      - bc
+      - pciutils
+      - usbutils
+      - bind-utils
+      - biosdevname
+
+    debian_pkgs:
+    - bsd-mailx
+    - fail2ban
+    - ntpdate
+    - rsync
+    - netcat
+    - ncdu
+    - pigz
+    - htop
+    - iotop
+    - iftop
+    - fping
+    - mtr-tiny
+    - mosh
+    - htop
+    - vim-common
+    - nano
+    - most
+    - tmux
+    - wget
+    - curl
+    - rkhunter
+    - git-core
+    - pv
+    - parallel
+    - tcpdump
+    - slurm
+    - apticron
+    - bc
+    - pastebinit
+    - pciutils
+    - usbutils
+    - apt-transport-https
+    - man
+    - locales
+    - net-tools
+
+    mail_smarthost: "mail.iskrauraltel.ru"
+
+    epel_repo_url: "https://dl.fedoraproject.org/pub/epel/epel-release-latest-{{ ansible_distribution_major_version }}.noarch.rpm"
+    epel_repo_gpg_key_url: "https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-{{ ansible_distribution_major_version }}"
+    epel_repofile_path: "/etc/yum.repos.d/epel.repo"
